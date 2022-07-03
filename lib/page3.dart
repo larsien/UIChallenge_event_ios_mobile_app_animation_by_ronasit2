@@ -40,25 +40,21 @@ class _Page3State extends State<Page3> with SingleTickerProviderStateMixin {
         body: Column(
       children: [
         HeaderAppBar(index: widget.index, controller: controller),
-        SlideTransition(
-            position: mainBodySlideUpAnimation,
-            // child: FadeTransition(
-            //   opacity: mainTimeFadeInAnimation,
-            child: Column(
-              children: [
-                Positioned(
-                  top: 300,
-                  child: BodyMainInfoWidget(
-                    index: widget.index,
-                    controller: controller,
-                  ),
-                ),
-                DetailContent(
-                  index: widget.index,
-                ),
-              ],
-              // ),
-            )),
+        Column(
+          children: [
+            Positioned(
+              top: 300,
+              child: BodyMainInfoWidget(
+                index: widget.index,
+                controller: controller,
+              ),
+            ),
+            DetailContent(
+              index: widget.index,
+            ),
+          ],
+          // ),
+        ),
       ],
     ));
   }
@@ -159,10 +155,7 @@ class _BodyMainInfoWidgetState extends State<BodyMainInfoWidget> {
               children: [
                 Row(
                   children: [
-                    ScaleTransition(
-                      scale: calendarScaleUpAnimation,
-                      child: const Calendar(),
-                    ),
+                    const Calendar(),
                     const SizedBox(width: 10),
                     SizedBox(
                       width: 192,
@@ -178,17 +171,12 @@ class _BodyMainInfoWidgetState extends State<BodyMainInfoWidget> {
                 ),
                 Row(
                   children: [
-                    ScaleTransition(
-                        scale: gpsIconScaleUpFadeInAnimation,
-                        child: const Icon(
-                          Icons.location_pin,
-                          color: Color(primaryRedColor),
-                        )),
+                    const Icon(
+                      Icons.location_pin,
+                      color: Color(primaryRedColor),
+                    ),
                     const SizedBox(width: 5),
-                    FadeTransition(
-                        opacity: gpsIconScaleUpFadeInAnimation,
-                        child:
-                            Text(sampleContentList[widget.index]["location"]!))
+                    Text(sampleContentList[widget.index]["location"]!)
                   ],
                 ),
                 const SizedBox(
@@ -197,16 +185,12 @@ class _BodyMainInfoWidgetState extends State<BodyMainInfoWidget> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    ScaleTransition(
-                        scale: timerScaleUpFadeInAnimation,
-                        child: const Icon(
-                          Icons.access_time_filled,
-                          color: Color(primaryRedColor),
-                        )),
+                    const Icon(
+                      Icons.access_time_filled,
+                      color: Color(primaryRedColor),
+                    ),
                     const SizedBox(width: 5),
-                    FadeTransition(
-                        opacity: timerScaleUpFadeInAnimation,
-                        child: const Text("8:00 AM - 10:00 PM"))
+                    const Text("8:00 AM - 10:00 PM")
                   ],
                 ),
               ],

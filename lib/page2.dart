@@ -41,16 +41,7 @@ class _Page2State extends State<Page2> with SingleTickerProviderStateMixin {
         decoration: const BoxDecoration(color: Colors.white),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FadeTransition(
-              opacity: headerTextFadeInAnimation,
-              child: SlideTransition(
-                position: headerTextSlideUpAnimation,
-                child: const Header(),
-              ),
-            ),
-            Body(controller: controller)
-          ],
+          children: [const Header(), Body(controller: controller)],
         ),
       ),
     );
@@ -86,16 +77,10 @@ class Body extends StatelessWidget {
                       parent: controller,
                       curve: Interval(0.1 * index, 0.6 + index * 0.1,
                           curve: Curves.linear)));
-          return FadeTransition(
-            opacity: itemOpacityAnimation,
-            child: SlideTransition(
-              position: itemSlideAnimation,
-              child: GestureDetector(
-                onTap: () => Navigator.push(context, delayedRoute(index)),
-                // MaterialPageRoute(builder: (contgext) => Page2(index))),
-                child: Item(item: item, index: index),
-              ),
-            ),
+          return GestureDetector(
+            onTap: () => Navigator.push(context, delayedRoute(index)),
+            // MaterialPageRoute(builder: (contgext) => Page2(index))),
+            child: Item(item: item, index: index),
           );
         },
       ),
@@ -288,26 +273,17 @@ class _CustomCoffeeAppBarState extends State<CustomCoffeeAppBar> {
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      FadeTransition(
-        opacity: cupFadeInAnimation,
-        child: const AppBarBackground(),
-      ),
+      const AppBarBackground(),
       Align(
         alignment: const Alignment(0.5, 0.6),
-        child: CupTransition(
-            //적용 전
-            // animation: animation,
-            movingAnim: cupSlideUpAnimation,
-            rotationAnim: cupRotateAnimation,
-            opacityAnim: cupFadeInAnimation,
-            child: SizedBox(
-              height: 70,
-              //https://www.pngwing.com/en/free-png-zqryl
-              child: Image.asset(
-                "images/coffee.png",
-                fit: BoxFit.fitHeight,
-              ),
-            )),
+        child: SizedBox(
+          height: 70,
+          //https://www.pngwing.com/en/free-png-zqryl
+          child: Image.asset(
+            "images/coffee.png",
+            fit: BoxFit.fitHeight,
+          ),
+        ),
       ),
       const AppBarBottomWhiteBackground(),
       SearchForTextWidget(
@@ -419,20 +395,17 @@ class SearchForTextWidget extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Padding(
           padding: const EdgeInsets.only(left: 10),
-          child: FadeTransition(
-            opacity: cupOpacityAnimation,
-            child: AnimatedBuilder(
-              builder: (context, child) {
-                String text =
-                    appBarSearchText.substring(0, textStepAnimation.value);
-                return Text(text,
-                    style: const TextStyle(
-                        fontSize: 22,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold));
-              },
-              animation: textStepAnimation,
-            ),
+          child: AnimatedBuilder(
+            builder: (context, child) {
+              String text =
+                  appBarSearchText.substring(0, textStepAnimation.value);
+              return Text(text,
+                  style: const TextStyle(
+                      fontSize: 22,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold));
+            },
+            animation: textStepAnimation,
           )),
     );
   }
