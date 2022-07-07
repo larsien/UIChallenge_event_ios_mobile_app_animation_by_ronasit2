@@ -6,6 +6,7 @@ import 'page2.dart';
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,21 +20,21 @@ class MyApp extends StatelessWidget {
 }
 
 class Page1 extends StatefulWidget {
-  const Page1({super.key});
+  const Page1({Key? key}) : super(key: key);
 
   @override
   State<Page1> createState() => _Page1State();
 }
 
 class _Page1State extends State<Page1> with SingleTickerProviderStateMixin {
-  late final AnimationController controller;
-  late final Animation<Offset> slideRightAnimation;
+  late final AnimationController controller =
+      AnimationController(vsync: this, duration: const Duration(seconds: 1));
+  List headers = <String>[];
+  late Animation<Offset> slideToRightAnimation;
   @override
   void initState() {
     super.initState();
-    controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 1));
-    slideRightAnimation =
+    slideToRightAnimation =
         Tween<Offset>(begin: Offset.zero, end: const Offset(1.0, 0.0)).animate(
             CurvedAnimation(parent: controller, curve: Curves.easeInCubic));
   }
@@ -53,7 +54,6 @@ class _Page1State extends State<Page1> with SingleTickerProviderStateMixin {
           backgroundColor: const Color(0xFFF47C74),
           onPressed: () async {
             controller.forward();
-            //애니메이션 수행 후  다음 페지 이동하기 위해 delay 줌
             await Future.delayed(const Duration(milliseconds: 1000));
             if (mounted) {
               Navigator.push(context, _createRoute())
@@ -67,10 +67,9 @@ class _Page1State extends State<Page1> with SingleTickerProviderStateMixin {
         children: [
           const SizedBox(height: 40),
           SlideTransition(
-              position: slideRightAnimation, child: const HeaderList()),
+              position: slideToRightAnimation, child: const HeaderList()),
           const SizedBox(height: 20),
-          SlideTransition(
-              position: slideRightAnimation, child: const MainBody()),
+          MainBody(slideAnimation: slideToRightAnimation),
         ],
       ),
     );
@@ -78,51 +77,62 @@ class _Page1State extends State<Page1> with SingleTickerProviderStateMixin {
 
   Route _createRoute() {
     return PageRouteBuilder(
-        pageBuilder: (_, __, ___) => const Page2(),
-        transitionDuration: const Duration(seconds: 1),
-        transitionsBuilder: (_, animation, secondaryAnimation, child) {
-          // final opacityTween = Tween(begin: 0.0, end: 1.0).animate(animation);
+        pageBuilder: (context, animation, secondaryAnimation) => const Page2(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final opacityTween = Tween(begin: 0.0, end: 1.0).animate(animation);
+          // var tween2 = tween.chain(curveTween);
           return BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-              // child: FadeTransition(opacity: opacityTween, child: child));
-              child: child);
+              child: FadeTransition(opacity: opacityTween, child: child));
         });
   }
 }
 
 class MainBody extends StatelessWidget {
-  const MainBody({super.key});
+  const MainBody({
+    Key? key,
+    required this.slideAnimation,
+  }) : super(key: key);
+
+  final Animation<Offset> slideAnimation;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        height: 340,
-        child: ListView.builder(
-          padding: const EdgeInsets.only(
-            left: 20,
-            bottom: 40,
+    return SlideTransition(
+      position: slideAnimation,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          height: 340,
+          child: ListView.builder(
+            padding: const EdgeInsets.only(
+              left: 20,
+              bottom: 40,
+            ),
+            scrollDirection: Axis.horizontal,
+            itemCount: 3,
+            shrinkWrap: true,
+            itemBuilder: (BuildContext context, int index) {
+              return const CardContent();
+            },
           ),
-          scrollDirection: Axis.horizontal,
-          itemCount: 3,
-          shrinkWrap: true,
-          itemBuilder: (BuildContext context, int index) {
-            return const CardContent();
-          },
         ),
       ),
+      // ),
     );
   }
 }
 
 class CardContent extends StatelessWidget {
-  const CardContent({super.key});
+  const CardContent({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Card(
         elevation: 10,
+        // margin: EdgeInsets.only(bottom: 40),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,6 +211,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
         padding: const EdgeInsets.only(left: 55.0),
         child: Container(
           decoration: const BoxDecoration(
+              // shape: BoxShape.circle,
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(70)),
               color: Color.fromARGB(255, 184, 222, 240)),
         ),
