@@ -12,7 +12,6 @@ class Page2 extends StatefulWidget {
 }
 
 class _Page2State extends State<Page2> with SingleTickerProviderStateMixin {
-  // late Animation<double> animation;
   late final AnimationController controller;
   late final Animation<double> headerTextFadeInAnimation;
   late final Animation<Offset> headerTextSlideUpAnimation;
@@ -252,6 +251,7 @@ class _CustomCoffeeAppBarState extends State<CustomCoffeeAppBar> {
   late Animation<double> cupFadeInAnimation;
   late Animation<int> textStepAnimation;
   final String appBarSearchText = "Search for ...";
+  bool isLoading = true;
   @override
   void initState() {
     controller = widget.controller;
@@ -268,20 +268,34 @@ class _CustomCoffeeAppBarState extends State<CustomCoffeeAppBar> {
         .animate(CurvedAnimation(parent: controller, curve: Curves.easeIn));
 
     super.initState();
+    Future.delayed(const Duration(milliseconds: 50)).then((value) {
+      isLoading = false;
+      setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      const AppBarBackground(),
-      Align(
-        alignment: const Alignment(0.5, 0.6),
-        child: SizedBox(
-          height: 70,
-          //https://www.pngwing.com/en/free-png-zqryl
-          child: Image.asset(
-            "images/coffee.png",
-            fit: BoxFit.fitHeight,
+      AnimatedOpacity(
+        opacity: isLoading ? 0.3 : 1.0,
+        duration: const Duration(seconds: 3),
+        child: const AppBarBackground(),
+      ),
+      AnimatedAlign(
+        alignment:
+            isLoading ? const Alignment(0.5, 0.7) : const Alignment(0.5, 0.5),
+        duration: const Duration(seconds: 3),
+        curve: Curves.ease,
+        child: Transform.rotate(
+          angle: isLoading ? 0.0 : 1.5,
+          child: SizedBox(
+            height: 70,
+            //https://www.pngwing.com/en/free-png-zqryl
+            child: Image.asset(
+              "images/coffee.png",
+              fit: BoxFit.fitHeight,
+            ),
           ),
         ),
       ),
@@ -395,18 +409,11 @@ class SearchForTextWidget extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Padding(
           padding: const EdgeInsets.only(left: 10),
-          child: AnimatedBuilder(
-            builder: (context, child) {
-              String text =
-                  appBarSearchText.substring(0, textStepAnimation.value);
-              return Text(text,
-                  style: const TextStyle(
-                      fontSize: 22,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold));
-            },
-            animation: textStepAnimation,
-          )),
+          child: Text(appBarSearchText,
+              style: const TextStyle(
+                  fontSize: 22,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold))),
     );
   }
 }

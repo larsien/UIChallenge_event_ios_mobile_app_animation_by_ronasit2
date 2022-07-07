@@ -40,20 +40,12 @@ class _Page3State extends State<Page3> with SingleTickerProviderStateMixin {
         body: Column(
       children: [
         HeaderAppBar(index: widget.index, controller: controller),
-        Column(
-          children: [
-            Positioned(
-              top: 300,
-              child: BodyMainInfoWidget(
-                index: widget.index,
-                controller: controller,
-              ),
-            ),
-            DetailContent(
-              index: widget.index,
-            ),
-          ],
-          // ),
+        BodyMainInfoWidget(
+          index: widget.index,
+          controller: controller,
+        ),
+        DetailContent(
+          index: widget.index,
         ),
       ],
     ));
