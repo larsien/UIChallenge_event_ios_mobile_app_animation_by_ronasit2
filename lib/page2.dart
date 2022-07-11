@@ -250,7 +250,7 @@ class _CustomCoffeeAppBarState extends State<CustomCoffeeAppBar> {
   late Animation<double> cupRotateAnimation;
   late Animation<double> cupFadeInAnimation;
   late Animation<int> textStepAnimation;
-  final String appBarSearchText = "Search for ...";
+
   bool isLoading = true;
   @override
   void initState() {
@@ -264,8 +264,6 @@ class _CustomCoffeeAppBarState extends State<CustomCoffeeAppBar> {
 
     cupFadeInAnimation = Tween(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(parent: controller, curve: Curves.easeOutCubic));
-    textStepAnimation = StepTween(begin: 0, end: appBarSearchText.length)
-        .animate(CurvedAnimation(parent: controller, curve: Curves.easeIn));
 
     super.initState();
     Future.delayed(const Duration(milliseconds: 50)).then((value) {
@@ -301,9 +299,7 @@ class _CustomCoffeeAppBarState extends State<CustomCoffeeAppBar> {
       ),
       const AppBarBottomWhiteBackground(),
       SearchForTextWidget(
-        cupOpacityAnimation: cupFadeInAnimation,
-        textStepAnimation: textStepAnimation,
-        appBarSearchText: appBarSearchText,
+        controller: controller,
       ),
       const MenuBar(),
     ]);
@@ -395,25 +391,30 @@ class _MenuBarState extends State<MenuBar> {
 class SearchForTextWidget extends StatelessWidget {
   const SearchForTextWidget({
     super.key,
-    required this.cupOpacityAnimation,
-    required this.textStepAnimation,
-    required this.appBarSearchText,
+    required this.controller,
   });
-  final String appBarSearchText;
-  final Animation<double> cupOpacityAnimation;
-  final Animation<int> textStepAnimation;
+  final AnimationController controller;
+  final String appBarSearchText = "Search for ...";
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Text(appBarSearchText,
-              style: const TextStyle(
-                  fontSize: 22,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold))),
+    Animation<double> sizeFactorTween =
+        Tween<double>(begin: 0, end: 1).animate(controller);
+    return Positioned(
+      top: 150,
+      left: 20,
+      child: SizeTransition(
+        sizeFactor: sizeFactorTween,
+        axis: Axis.horizontal,
+        axisAlignment: -1,
+        child: Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: Text(appBarSearchText,
+                style: const TextStyle(
+                    fontSize: 22,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold))),
+      ),
     );
   }
 }
@@ -464,33 +465,5 @@ class ShakeCurve extends Curve {
   double transformInternal(double t) {
     var val = sin(count * 2 * pi * t + 0.5) * 0.5 + 0.7;
     return val;
-  }
-}
-
-class CupTransition extends StatelessWidget {
-  const CupTransition({
-    super.key,
-    required this.child,
-    // required this.animation,
-    required this.movingAnim,
-    required this.rotationAnim,
-    required this.opacityAnim,
-  });
-
-  final Widget child;
-  // final Animation<double> animation;
-  final Animation<Offset> movingAnim;
-  final Animation<double> rotationAnim;
-  final Animation<double> opacityAnim;
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: opacityAnim,
-      child: SlideTransition(
-        position: movingAnim,
-        child: RotationTransition(turns: rotationAnim, child: child),
-      ),
-    );
   }
 }
