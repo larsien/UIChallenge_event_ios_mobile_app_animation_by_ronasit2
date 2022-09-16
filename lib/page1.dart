@@ -3,37 +3,22 @@ import 'package:flutter/material.dart';
 import 'common.dart';
 import 'page2.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'Flutter Demo',
-        initialRoute: "/",
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: const Page1());
-  }
-}
-
 class Page1 extends StatefulWidget {
-  const Page1({Key? key}) : super(key: key);
+  const Page1({super.key});
 
   @override
   State<Page1> createState() => _Page1State();
 }
 
 class _Page1State extends State<Page1> with SingleTickerProviderStateMixin {
-  late final AnimationController controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 1));
-  List headers = <String>[];
-  late Animation<Offset> slideToRightAnimation;
+  late final AnimationController controller;
+  late final Animation<Offset> slideToRightAnimation;
+
   @override
   void initState() {
     super.initState();
+    controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
     slideToRightAnimation =
         Tween<Offset>(begin: Offset.zero, end: const Offset(1.0, 0.0)).animate(
             CurvedAnimation(parent: controller, curve: Curves.easeInCubic));
@@ -56,7 +41,7 @@ class _Page1State extends State<Page1> with SingleTickerProviderStateMixin {
             controller.forward();
             await Future.delayed(const Duration(milliseconds: 1000));
             if (mounted) {
-              Navigator.push(context, _createRoute())
+              Navigator.push(context, _nextPageRoute())
                   .then((value) => controller.reset());
             }
           },
@@ -66,138 +51,23 @@ class _Page1State extends State<Page1> with SingleTickerProviderStateMixin {
       body: Column(
         children: [
           const SizedBox(height: 40),
-          SlideTransition(
-              position: slideToRightAnimation, child: const HeaderList()),
+          HeaderList(slideAnimation: slideToRightAnimation),
           const SizedBox(height: 20),
-          MainBody(slideAnimation: slideToRightAnimation),
+          Body(slideAnimation: slideToRightAnimation),
         ],
       ),
     );
   }
 
-  Route _createRoute() {
+  Route _nextPageRoute() {
     return PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => const Page2(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final opacityTween = Tween(begin: 0.0, end: 1.0).animate(animation);
-          // var tween2 = tween.chain(curveTween);
           return BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
               child: FadeTransition(opacity: opacityTween, child: child));
         });
-  }
-}
-
-class MainBody extends StatelessWidget {
-  const MainBody({
-    Key? key,
-    required this.slideAnimation,
-  }) : super(key: key);
-
-  final Animation<Offset> slideAnimation;
-
-  @override
-  Widget build(BuildContext context) {
-    return SlideTransition(
-      position: slideAnimation,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          height: 340,
-          child: ListView.builder(
-            padding: const EdgeInsets.only(
-              left: 20,
-              bottom: 40,
-            ),
-            scrollDirection: Axis.horizontal,
-            itemCount: 3,
-            shrinkWrap: true,
-            itemBuilder: (BuildContext context, int index) {
-              return const CardContent();
-            },
-          ),
-        ),
-      ),
-      // ),
-    );
-  }
-}
-
-class CardContent extends StatelessWidget {
-  const CardContent({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-        elevation: 10,
-        // margin: EdgeInsets.only(bottom: 40),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ClipRRect(
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20)),
-                child: SizedBox(
-                  width: 300,
-                  height: 200,
-                  child: Image.asset(
-                    "images/test.jpeg",
-                    fit: BoxFit.cover,
-                  ),
-                )),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  const Calendar(),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Text("Tea Ceremony",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text("1270 Madison Avenue"),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            // )
-          ],
-        ));
-  }
-}
-
-class HeaderList extends StatelessWidget {
-  const HeaderList({super.key});
-  final List headers = const <String>[
-    "Popular",
-    "Features",
-    "Trending",
-    "Recent"
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-        spacing: 20,
-        children: headers
-            .map((title) => Text(title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                )))
-            .toList());
   }
 }
 
@@ -211,7 +81,6 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
         padding: const EdgeInsets.only(left: 55.0),
         child: Container(
           decoration: const BoxDecoration(
-              // shape: BoxShape.circle,
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(70)),
               color: Color.fromARGB(255, 184, 222, 240)),
         ),
@@ -244,4 +113,119 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size(500, 250);
+}
+
+class HeaderList extends StatelessWidget {
+  const HeaderList({super.key, required this.slideAnimation});
+  final List headers = const <String>[
+    "Popular",
+    "Features",
+    "Trending",
+    "Recent"
+  ];
+  final Animation<Offset> slideAnimation;
+
+  @override
+  Widget build(BuildContext context) {
+    return SlideTransition(
+        position: slideAnimation,
+        child: Wrap(
+            spacing: 20,
+            children: headers
+                .map((title) => Text(title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    )))
+                .toList()));
+  }
+}
+
+class Body extends StatelessWidget {
+  const Body({
+    super.key,
+    required this.slideAnimation,
+  });
+
+  final Animation<Offset> slideAnimation;
+
+  @override
+  Widget build(BuildContext context) {
+    return SlideTransition(
+      position: slideAnimation,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          height: 340,
+          child: ListView.builder(
+            padding: const EdgeInsets.only(
+              left: 20,
+              bottom: 40,
+            ),
+            scrollDirection: Axis.horizontal,
+            itemCount: 3,
+            shrinkWrap: true,
+            itemBuilder: (_, __) {
+              return const CardContent();
+            },
+          ),
+        ),
+      ),
+      // ),
+    );
+  }
+}
+
+class CardContent extends StatelessWidget {
+  const CardContent({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        elevation: 10,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20)),
+                child: SizedBox(
+                  width: 300,
+                  height: 200,
+                  child: Image.asset(
+                    "images/test.jpeg",
+                    fit: BoxFit.cover,
+                  ),
+                )),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  const CommonCalendar(),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text("Tea Ceremony",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text("1270 Madison Avenue"),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // )
+          ],
+        ));
+  }
 }
