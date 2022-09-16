@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'common.dart';
 
 class Page3 extends StatefulWidget {
@@ -11,8 +10,6 @@ class Page3 extends StatefulWidget {
 }
 
 class _Page3State extends State<Page3> with SingleTickerProviderStateMixin {
-  late final Animation<Offset> mainBodySlideUpAnimation;
-  late final Animation<double> mainTimeFadeInAnimation;
   late final AnimationController controller;
 
   @override
@@ -20,16 +17,6 @@ class _Page3State extends State<Page3> with SingleTickerProviderStateMixin {
     super.initState();
     controller =
         AnimationController(duration: const Duration(seconds: 2), vsync: this);
-    mainTimeFadeInAnimation = Tween(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(
-            parent: controller,
-            curve: const Interval(0.5, 1.0, curve: Curves.ease)));
-    mainBodySlideUpAnimation =
-        Tween<Offset>(begin: const Offset(0, 0), end: const Offset(0, -0.1))
-            .animate(CurvedAnimation(
-                parent: controller,
-                curve: const Interval(0.5, 1.0, curve: Curves.ease)));
-
     controller.forward();
   }
 
@@ -39,12 +26,14 @@ class _Page3State extends State<Page3> with SingleTickerProviderStateMixin {
         // appBar: HeaderAppBar(index: widget.index, controller: controller),
         body: Column(
       children: [
-        HeaderAppBar(index: widget.index, controller: controller),
-        BodyMainInfoWidget(
+        HeaderAppBar(
+          index: widget.index,
+        ),
+        MainBody(
           index: widget.index,
           controller: controller,
         ),
-        DetailContent(
+        BottomBody(
           index: widget.index,
         ),
       ],
@@ -58,36 +47,46 @@ class _Page3State extends State<Page3> with SingleTickerProviderStateMixin {
   }
 }
 
-class DetailContent extends StatelessWidget {
-  const DetailContent({
-    super.key,
-    required this.index,
-  });
+class HeaderAppBar extends StatefulWidget with PreferredSizeWidget {
+  const HeaderAppBar({super.key, required this.index});
 
   final int index;
 
   @override
+  State<HeaderAppBar> createState() => _HeaderAppBarState();
+  @override
+  Size get preferredSize => const Size(500, 300);
+}
+
+class _HeaderAppBarState extends State<HeaderAppBar> {
+  late final Animation<Offset> headerBodySlideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox(
-              height: 40, child: Text(sampleContentList[index]["content"]!)),
-          const SizedBox(
-              height: 20,
-              child: Text("See more ",
-                  style: TextStyle(fontWeight: FontWeight.bold))),
-        ],
-      ),
-    );
+    return Hero(
+        tag: "image${widget.index}",
+        child: Container(
+          height: 300,
+          decoration: const BoxDecoration(
+              image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: AssetImage(
+                    "images/pug.jpeg",
+                  )),
+              borderRadius: BorderRadius.all(
+                Radius.circular(30),
+              )),
+        ));
   }
 }
 
-class BodyMainInfoWidget extends StatefulWidget {
-  const BodyMainInfoWidget({
+class MainBody extends StatefulWidget {
+  const MainBody({
     super.key,
     required this.index,
     required this.controller,
@@ -97,37 +96,29 @@ class BodyMainInfoWidget extends StatefulWidget {
   final AnimationController controller;
 
   @override
-  State<BodyMainInfoWidget> createState() => _BodyMainInfoWidgetState();
+  State<MainBody> createState() => _MainBodyState();
 }
 
-class _BodyMainInfoWidgetState extends State<BodyMainInfoWidget> {
-  late final Animation<double> calendarScaleUpAnimation;
-  late final Animation<double> gpsIconScaleUpFadeInAnimation;
-  late final Animation<double> timerScaleUpFadeInAnimation;
-  // late final Animation<double> timerFadeInAnimation;
+class _MainBodyState extends State<MainBody> {
   late AnimationController controller;
+  late final Animation<double> calendarScaleUpAnimation;
+  late final Animation<double> iconScaleUpFadeInAnimation;
+  late final Animation<double> textFadeInAnimation;
   @override
   void initState() {
     super.initState();
     controller = widget.controller;
-    // timerFadeInAnimation = Tween(begin: 0.0, end: 1.0).animate(
-    //     CurvedAnimation(
-    //         parent: controller,
-    //         curve: const Interval(0.5, 1.0, curve: Curves.ease)));
     calendarScaleUpAnimation = Tween(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(
             parent: controller,
             curve: const Interval(0.0, 0.7, curve: Curves.ease)));
-    //for scale, fade in
-    gpsIconScaleUpFadeInAnimation = Tween(begin: 0.0, end: 1.0).animate(
+    iconScaleUpFadeInAnimation = Tween(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(
             parent: controller,
             curve: const Interval(0.25, 0.7, curve: Curves.ease)));
-    //for scale, fade in
-    timerScaleUpFadeInAnimation = Tween(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(
-            parent: controller,
-            curve: const Interval(0.5, 1.0, curve: Curves.ease)));
+    textFadeInAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+        parent: controller,
+        curve: const Interval(0.5, 1.0, curve: Curves.ease)));
   }
 
   @override
@@ -145,46 +136,29 @@ class _BodyMainInfoWidgetState extends State<BodyMainInfoWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    const Calendar(),
-                    const SizedBox(width: 10),
-                    SizedBox(
-                      width: 192,
-                      child: Text(sampleContentList[widget.index]["title"]!,
-                          maxLines: 2,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
-                    )
-                  ],
+                CalendarItem(
+                  text: sampleContentList[widget.index]["title"]!,
+                  iconScaleUpAnimation: iconScaleUpFadeInAnimation,
                 ),
                 const SizedBox(
+                  // this divider is not looking good...
                   height: 20,
                 ),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_pin,
-                      color: Color(primaryRedColor),
-                    ),
-                    const SizedBox(width: 5),
-                    Text(sampleContentList[widget.index]["location"]!)
-                  ],
+                DetailItemRow(
+                  icon: Icons.location_pin,
+                  iconScaleUpAnimation: iconScaleUpFadeInAnimation,
+                  text: sampleContentList[widget.index]["location"]!,
+                  textFadeInAnimation: textFadeInAnimation,
                 ),
                 const SizedBox(
                   height: 10,
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.access_time_filled,
-                      color: Color(primaryRedColor),
-                    ),
-                    const SizedBox(width: 5),
-                    const Text("8:00 AM - 10:00 PM")
-                  ],
-                ),
+                DetailItemRow(
+                  icon: Icons.access_time_filled,
+                  iconScaleUpAnimation: iconScaleUpFadeInAnimation,
+                  text: "8:00 AM - 10:00 PM",
+                  textFadeInAnimation: textFadeInAnimation,
+                )
               ],
             ),
           ),
@@ -194,48 +168,89 @@ class _BodyMainInfoWidgetState extends State<BodyMainInfoWidget> {
   }
 }
 
-class HeaderAppBar extends StatefulWidget with PreferredSizeWidget {
-  const HeaderAppBar(
-      {super.key, required this.index, required this.controller});
+class DetailItemRow extends StatelessWidget {
+  const DetailItemRow({
+    super.key,
+    required this.icon,
+    required this.iconScaleUpAnimation,
+    required this.text,
+    required this.textFadeInAnimation,
+  });
 
-  final int index;
-  final AnimationController controller;
-
+  final String text;
+  final IconData icon;
+  final Animation<double> iconScaleUpAnimation;
+  final Animation<double> textFadeInAnimation;
   @override
-  State<HeaderAppBar> createState() => _HeaderAppBarState();
-  @override
-  Size get preferredSize => const Size(500, 300);
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        ScaleTransition(
+          scale: iconScaleUpAnimation,
+          child: Icon(
+            icon,
+            color: const Color(primaryRedColor),
+          ),
+        ),
+        const SizedBox(width: 5),
+        FadeTransition(opacity: textFadeInAnimation, child: Text(text))
+      ],
+    );
+  }
 }
 
-class _HeaderAppBarState extends State<HeaderAppBar> {
-  late final Animation<Offset> headerBodySlideAnimation;
-
-  @override
-  void initState() {
-    headerBodySlideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0), end: const Offset(0, -0.1))
-            .animate(CurvedAnimation(
-                parent: widget.controller,
-                curve: const Interval(0.5, 1.0, curve: Curves.ease)));
-
-    super.initState();
-  }
+class CalendarItem extends StatelessWidget {
+  const CalendarItem({
+    super.key,
+    required this.text,
+    required this.iconScaleUpAnimation,
+  });
+  final Animation<double> iconScaleUpAnimation;
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-        tag: "test${widget.index}",
-        child: Container(
-          height: 300,
-          decoration: const BoxDecoration(
-              image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: AssetImage(
-                    "images/pug.jpeg",
-                  )),
-              borderRadius: BorderRadius.all(
-                Radius.circular(30),
-              )),
-        ));
+    return Row(
+      children: [
+        ScaleTransition(
+            scale: iconScaleUpAnimation, child: const CommonCalendar()),
+        const SizedBox(width: 10),
+        SizedBox(
+          width: 192,
+          child: Text(text,
+              maxLines: 2,
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        )
+      ],
+    );
+  }
+}
+
+class BottomBody extends StatelessWidget {
+  const BottomBody({
+    super.key,
+    required this.index,
+  });
+
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SizedBox(
+              height: 40, child: Text(sampleContentList[index]["content"]!)),
+          const SizedBox(
+              height: 20,
+              child: Text("See more ",
+                  style: TextStyle(fontWeight: FontWeight.bold))),
+        ],
+      ),
+    );
   }
 }
