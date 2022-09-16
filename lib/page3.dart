@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'common.dart';
+
+import 'common_component.dart';
+import 'constants.dart';
 
 class Page3 extends StatefulWidget {
   const Page3(this.index, {super.key});

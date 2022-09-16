@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'common.dart';
+import 'common_component.dart';
+import 'constants.dart';
 import 'page2.dart';
 
 class Page1 extends StatefulWidget {
