@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 const int primaryBlueColor = 0xFF8EDCF2;
 const int primaryRedColor = 0xFFF1877F;
+
 var sampleContentList = [
   {
     "dayOfWeek": "Sun",
@@ -32,8 +33,8 @@ var sampleContentList = [
   }
 ];
 
-class Calendar extends StatelessWidget {
-  const Calendar({Key? key}) : super(key: key);
+class CommonCalendar extends StatelessWidget {
+  const CommonCalendar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
